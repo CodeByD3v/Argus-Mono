@@ -1,0 +1,101 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: dark;
+  --bg-app: #0A0A0B;
+  --bg-card: #161618;
+  --bg-card-raised: #1D1D20;
+  --bg-pill: #1F1F22;
+  --bg-pill-active: #2A2A2E;
+  --border-subtle: rgba(255, 255, 255, 0.08);
+  --border-divider: rgba(255, 255, 255, 0.06);
+  --text-primary: #F5F5F4;
+  --text-secondary: #9A9A9E;
+  --text-tertiary: #5C5C60;
+  --accent-green: #3ECF6E;
+  --accent-red: #E5484D;
+  --accent-amber: #F5A623;
+  --map-water: #0B1620;
+  --map-terrain-dark: #1A1F1A;
+  --map-terrain-green: #3A4A32;
+  --map-road: #E8E8E8;
+}
+
+html, body, #root {
+  height: 100vh;
+  width: 100vw;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  background-color: var(--bg-app);
+  color: var(--text-primary);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  user-select: none;
+}
+
+/* Number display with tabular lining figures */
+.tabular-nums {
+  font-feature-settings: 'tnum' 1, 'lnum' 1;
+}
+
+/* Subtle live dot pulse */
+@keyframes live-pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.45;
+  }
+}
+
+.animate-live-dot {
+  animation: live-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* Scrollbar reset */
+* {
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+}
+*::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+}
+
+/* Standard Control-Room Cards */
+.control-card {
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: 16px;
+  position: relative;
+}
+
+.control-card-raised {
+  background-color: var(--bg-card-raised);
+  border: 1px solid var(--border-subtle);
+  border-radius: 12px;
+}
+
+.pill-button {
+  background-color: var(--bg-pill);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  color: var(--text-secondary);
+  border-radius: 9999px;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+.pill-button:hover {
+  background-color: var(--bg-pill-active);
+  color: var(--text-primary);
+}
+.pill-button-active {
+  background-color: var(--bg-pill-active);
+  color: var(--text-primary);
+  border-color: rgba(255, 255, 255, 0.1);
+}
