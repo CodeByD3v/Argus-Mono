@@ -1,0 +1,27 @@
+{
+  "name": "argus-mono",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Argus-Mono: Continuous Multi-View Drone-Video-to-3D Reconstruction & Operations Dashboard",
+  "scripts": {
+    "dev:frontend": "cd frontend && npm run dev",
+    "dev:backend": "python backend/scripts/serve_viewer.py --port 8080 --no-browser",
+    "dev": "npm run dev:frontend",
+    "build:frontend": "cd frontend && npm run build",
+    "build": "npm run build:frontend",
+    "electron:dev": "cd frontend && npm run electron:dev",
+    "electron": "cd frontend && npm run electron",
+    "preview": "cd frontend && npm run preview"
+  },
+  "keywords": [
+    "argus",
+    "drone",
+    "uav",
+    "photogrammetry",
+    "3d-reconstruction",
+    "dashboard",
+    "monorepo"
+  ],
+  "author": "Argus Team",
+  "license": "UNLICENSED"
+}

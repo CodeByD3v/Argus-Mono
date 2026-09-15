@@ -1,0 +1,36 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Large Reconstruction Outputs (26+ GB)
+outputs/
+scratch/
+*.log
+
+# Large binary datasets
+Dataset/**/*.bag
+*.bag
+
+# Virtual environments
+venv/
+.venv/
+env/
+.env
+
+# Backups
+backups/
+*.zip
+
+# Editor & OS settings
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Root debug screenshots & scratch artifacts
+/*.png
+/apply_polish.js
+/arrow_path_d.txt
+/arrow_test.svg
+*.orig

@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Single-Pass 3D Reconstruction</title>
+  <meta name="description" content="Premium UAV single-pass 3D reconstruction — cinematic geospatial visualization" />
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Share+Tech+Mono&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="styles.css?v=5" />
+  <link rel="stylesheet" href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css" />
+
+  <!-- Three.js -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+  <!-- MapLibre GL JS -->
+  <script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
+</head>
+<body>
+  <div id="app-container">
+
+    <!-- Globe Layer (Three.js Earth) — visible initially -->
+    <div id="globe-container"></div>
+
+    <!-- Map Layer (MapLibre GL JS) — hidden initially -->
+    <div id="map-container"></div>
+
+    <!-- Header — minimal, transparent overlay -->
+    <header id="app-header">
+      <div class="header-brand">
+        <div class="brand-mark"></div>
+        <h1>Single-Pass 3D Reconstruction</h1>
+      </div>
+      <div class="header-right">
+        <span class="header-status" id="header-status"></span>
+        <button class="btn-demo" id="btn-demo">Demo Flight</button>
+        <button class="btn-upload" id="btn-upload">NEW FLIGHT</button>
+        <input type="file" id="file-input" accept="video/*,.srt" style="display:none" />
+      </div>
+    </header>
+
+    <!-- Upload Overlay -->
+    <div id="upload-overlay">
+      <button class="upload-close-btn" id="upload-close">&times;</button>
+      <div class="upload-zone" id="upload-zone">
+        <svg class="upload-zone-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="color: var(--text-secondary);">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+          <polyline points="17 8 12 3 7 8" />
+          <line x1="12" y1="3" x2="12" y2="15" />
+        </svg>
+        <div class="upload-zone-title">Upload UAV Video</div>
+        <div class="upload-zone-subtitle">
+          Drag and drop a drone video with embedded GPS telemetry<br>
+          or an SRT subtitle file with flight coordinates
+        </div>
+        <button class="btn-demo" id="btn-demo-zone" style="margin-top: 16px;">Load Demo Flight</button>
+      </div>
+    </div>
+
+    <!-- Processing Status Indicator -->
+    <div id="processing-status">
+      <div class="processing-pill">
+        <div class="processing-spinner"></div>
+        <span class="processing-text" id="processing-text">Processing…</span>
+      </div>
+    </div>
+
+    <!-- Route Info Panel (top-right, after route loads) -->
+    <div id="route-info">
+      <div class="route-info-panel">
+        <div class="route-info-row">
+          <span class="route-info-label">Waypoints</span>
+          <span class="route-info-value" id="info-waypoints">—</span>
+        </div>
+        <div class="route-info-row">
+          <span class="route-info-label">Duration</span>
+          <span class="route-info-value" id="info-duration">—</span>
+        </div>
+        <div class="route-info-row">
+          <span class="route-info-label">Altitude</span>
+          <span class="route-info-value" id="info-altitude">—</span>
+        </div>
+        <div class="route-info-row">
+          <span class="route-info-label">Coverage</span>
+          <span class="route-info-value lime" id="info-coverage">—</span>
+        </div>
+        <div class="route-info-row">
+          <span class="route-info-label">Status</span>
+          <span class="route-info-value lime" id="info-status">IDLE</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Error State -->
+    <div id="error-state">
+      <div class="error-pill">
+        <span class="error-pill-text" id="error-text">Error</span>
+      </div>
+    </div>
+
+    <!-- Reconstruction Timeline — pre-mounted, initially invisible -->
+    <div id="timeline-bar">
+      <div class="timeline-inner">
+        <!-- Header Row -->
+        <div class="timeline-header">
+          <div class="timeline-left">
+            <button class="timeline-play-btn" id="btn-play" title="Play / Pause">
+              <svg id="icon-play" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+              <svg id="icon-pause" viewBox="0 0 24 24" fill="currentColor" style="display:none"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg>
+            </button>
+            <div class="timeline-time">
+              <span id="tl-current-time">00:00</span>
+              <span class="sep">/</span>
+              <span id="tl-total-time">00:00</span>
+            </div>
+          </div>
+          <div class="timeline-right">
+            <div class="timeline-stat">
+              <span class="timeline-stat-label">Frames</span>
+              <span class="timeline-stat-value" id="tl-frames">0</span>
+            </div>
+            <div class="timeline-stat">
+              <span class="timeline-stat-label">Captured</span>
+              <span class="timeline-stat-value lime" id="tl-captured">0%</span>
+            </div>
+            <div class="timeline-stat">
+              <span class="timeline-stat-label">Coverage</span>
+              <span class="timeline-stat-value lime" id="tl-coverage">0%</span>
+            </div>
+          </div>
+        </div>
+        <!-- Scrubber -->
+        <div class="timeline-scrubber" id="timeline-scrubber">
+          <div class="timeline-progress" id="timeline-progress" style="width: 0%"></div>
+          <input type="range" id="timeline-slider" min="0" max="100" value="0" step="1" />
+        </div>
+        <!-- Status Row -->
+        <div class="timeline-status-row">
+          <span class="timeline-status-label" id="tl-status-label">Flight Telemetry</span>
+          <div class="timeline-status-badge">
+            <span class="timeline-status-dot"></span>
+            <span id="tl-status-text">READY</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Toast -->
+    <div id="toast-container"></div>
+
+  </div>
+
+  <script src="app.js?v=5"></script>
+</body>
+</html>
